@@ -1,0 +1,5 @@
+[database]
+user = coxx4230
+host = hopper.wlu.ca
+password = cp363_Pass
+database = faro8180
