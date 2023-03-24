@@ -64,7 +64,6 @@ button = 0
 
 # input text box class
 class InputBox:
-
     def __init__(self, x, y, w, h, text=''):
         self.rect = Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
@@ -86,6 +85,7 @@ class InputBox:
             if self.active:
                 if evnt.key == K_RETURN:
                     print(self.text)
+                    return self.text
                     # self.text = ''
                 elif evnt.key == K_BACKSPACE:
                     self.text = self.text[:-1]
@@ -114,16 +114,47 @@ def menuButton(backColour,textColour,text,width):
     draw.rect (screen, backColour, (250,width,450,75))
     buttonRect = Rect(250,width,450,75)
         
-        # Setting up the AI Text
     text1 = Modern.render(text, 1, textColour) 
         # getting the width of the text
     text1Width = Modern.size(text)[0] 
         # getting the height of the text
     text1Height = Modern.size(text)[1] 
-        # blitting "AI" to the screen
     screen.blit(text1, Rect(175 + (600 - text1Width)/2, width + (80 - text1Height)/2, text1Width, text1Height))
     
     return buttonRect
+
+"""
+def clickableButton(backColour,textColour,text,width, x, y):
+    def center_text(text,button_rect):
+        text_rect=text.get_rect()
+        text_x=(button_rect[0]+button_rect[2])//2
+        text_y=button_rect[1]+10
+        centered_text=(text_x,text_y,button_rect[2],button_rect[3])
+        return centered_text
+    def display_buttontext(text,textfont,rect,centertext):
+        Button_text=textfont.render(text,True,(255,255,255))
+        if centertext==True:
+            text_rect=ClickableButton.center_text(Button_text,rect)
+        else:
+            text_rect=rect
+            text_rect[1]+=10
+        screen.blit(Button_text,text_rect)
+    
+    
+    draw.rect (screen, backColour, (250,width,450,75))
+    buttonRect = Rect(250,width,450,75)
+        
+    text1 = ModernWriting.render(text, 1, textColour) 
+        # getting the width of the text
+    text1Width = ModernWriting.size(text)[0] 
+        # getting the height of the text
+    text1Height = ModernWriting.size(text)[1]
+    centered_text = center_text(text1, buttonRect)
+    
+    screen.blit(text1, Rect(x, y, text1Width, text1Height))
+    
+    return buttonRect
+"""
 
 
 # main screen - menu page
@@ -137,42 +168,155 @@ def mainMenu (): # Returns a list of menu rectangles
     
 # SQL FUNCTIONS
 def drop():
-    screen.fill(PASTELPURPLE)
-#     dropText = Modern.render("All tables have been dropped. Check MySQL Workbench.", 1, (255,255,255)) 
-#         # getting the width of the text
-#     textWidth = Modern.size(dropText)[0] 
-#         # getting the height of the text
-#     textHeight = Modern.size(dropText)[1] 
-#         # blitting text to the screen
-#     screen.blit(dropText, Rect(175 + (600 - textWidth)/2, width + (80 - textHeight)/2, textWidth, textHeight))
-#     
-#     #dropText = ("All tables have been dropped. Check MySQL Workbench.", 1, (255, 255, 255))
-#     
-    text="All tables have been dropped."
-    dropText = ModernSubHeading.render(text,True,BLACK)
-    screen.blit(dropText,(205,270))
+    def drop_screen():
+        screen.fill(PASTELPURPLE)
+        
+        text_str = "Table to be dropped :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
+        screen.blit(text,(100,150))
+        
+        # Put "done" button here
     
-    text="Check MySQL Workbench."
-    dropText = ModernSubHeading.render(text,True,BLACK)
-    screen.blit(dropText,(220,350))
+    input_box1 = InputBox(550, 150, 500, 50)
     
-    #print("drop function running")
+    input_boxes = [input_box1]
+
+        
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+                
+            #for box in input_boxes:
+            text = input_box1.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        drop_screen() # used to enable backspaces on input text boxes
+        
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
     
     # ADD SQL CODE HERE
     
 
 def create():
-    screen.fill(PASTELRED)
+    def create_screen():
+        screen.fill(PASTELRED)
+        # DISPLAY TEXT TO SCREEN (not input boxes)
+        text_str = "Table name :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
+        screen.blit(text,(150,150))
+        
+        text_str = "Attributes :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
+        screen.blit(text,(150,250))
+        
+        text_str = "For Attributes, the format should be as follows: (type varName, type varName2)"
+        text = ModernWriting.render(text_str,True,BLACK)
+        screen.blit(text,(150,550))
+        
+        # doneRect = clickableButton(PASTELGREEN, BLACK,"DONE", 150, 800, 500)
+
+        
+    input_box1 = InputBox(450, 150, 500, 50)
+    input_box2 = InputBox(450, 250, 500, 50)
+
+    input_boxes = [input_box1, input_box2]
+
+        
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+                
+            #for box in input_boxes:
+            text1 = input_box1.handle_event(evnt)
+            text2 = input_box2.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        create_screen() # used to enable backspaces on input text boxes
+        
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
     
 def add():
-    screen.fill(PASTELGREEN)
+    def add_screen():
+        screen.fill((102, 200,178))
+        
+        tables = ["employee", "customer", "order"] # Hardcoded sample data
+        
+        #tables_str = "Your database has the following tables:"
+        text = ModernWriting.render("Your database has the following tables :",True,BLACK)
+        screen.blit(text,(100,150))
+        
+        tables_str = ""
+        
+        for table in tables:
+            tables_str += table
+            if table != tables[-1]:
+                tables_str += ", "
+        
+        text = ModernWriting.render(tables_str,True,(150,40,40))
+        screen.blit(text,(100,200))
+                
+        #print(tables_str)
+        
+        text = ModernWriting.render("Please enter the name of the table which you want to add data to:",True,BLACK)
+        screen.blit(text,(100,250))
+        
+    COLOR_ACTIVE = WHITE # background is too light, so temporarily changing the active input box colour
+
+    input_box1 = InputBox(100, 300, 500, 50)
+    
+    input_boxes = [input_box1]
+
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+                
+            #for box in input_boxes:
+            text = input_box1.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        add_screen() # used to enable backspaces on input text boxes
+        
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
+ 
+    
+
 
 def query():
     def query_screen():
         screen.fill(STRONGTEAL)
-            
-        select_attribute = "SELECT :"
-        text = ModernSubHeading.render(select_attribute,True,BLACK)
+         # DISPLAY TEXT TO SCREEN (not input boxes)
+        text_str = "SELECT :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,150))
         
         table = "FROM :"
@@ -232,8 +376,10 @@ def query():
                 done = True
                 sys.exit()
                 
-            for box in input_boxes:
-                box.handle_event(evnt)
+            selectText = input_boxes[0].handle_event(evnt)
+            fromText = input_boxes[1].handle_event(evnt)
+            whereText = input_boxes[2].handle_event(evnt)
+            orderbyText = input_boxes[3].handle_event(evnt)
 
         for box in input_boxes:
             box.update()
