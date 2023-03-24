@@ -148,17 +148,41 @@ def mainMenu (): # Returns a list of menu rectangles
     
 # SQL FUNCTIONS
 def drop():
-    screen.fill(PASTELPURPLE)
+    def drop_screen():
+        screen.fill(PASTELPURPLE)
+        
+        text_str = "Table to be dropped :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
+        screen.blit(text,(100,150))
+        
+        # Put "done" button here
     
-    text="All tables have been dropped."
-    dropText = ModernSubHeading.render(text,True,BLACK)
-    screen.blit(dropText,(205,270))
+    input_box1 = InputBox(550, 150, 500, 50)
     
-    text="Check MySQL Workbench."
-    dropText = ModernSubHeading.render(text,True,BLACK)
-    screen.blit(dropText,(220,350))
-    
-    #print("drop function running")
+    input_boxes = [input_box1]
+
+        
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+                
+            #for box in input_boxes:
+            text = input_box1.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        drop_screen() # used to enable backspaces on input text boxes
+        
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
     
     # ADD SQL CODE HERE
     
@@ -200,8 +224,6 @@ def create():
             text1 = input_box1.handle_event(evnt)
             text2 = input_box2.handle_event(evnt)
 
-
-
         for box in input_boxes:
             box.update()
 
@@ -214,9 +236,59 @@ def create():
         clock.tick(30)
     
 def add():
-    screen.fill(PASTELGREEN)
-  
+    def add_screen():
+        screen.fill((102, 200,178))
+        
+        tables = ["employee", "customer", "order"] # Hardcoded sample data
+        
+        #tables_str = "Your database has the following tables:"
+        text = ModernWriting.render("Your database has the following tables :",True,BLACK)
+        screen.blit(text,(100,150))
+        
+        tables_str = ""
+        
+        for table in tables:
+            tables_str += table
+            if table != tables[-1]:
+                tables_str += ", "
+        
+        text = ModernWriting.render(tables_str,True,(150,40,40))
+        screen.blit(text,(100,200))
+                
+        #print(tables_str)
+        
+        text = ModernWriting.render("Please enter the name of the table which you want to add data to:",True,BLACK)
+        screen.blit(text,(100,250))
+        
+    COLOR_ACTIVE = WHITE # background is too light, so temporarily changing the active input box colour
 
+    input_box1 = InputBox(100, 300, 500, 50)
+    
+    input_boxes = [input_box1]
+
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+                
+            #for box in input_boxes:
+            text = input_box1.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        add_screen() # used to enable backspaces on input text boxes
+        
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
+ 
+    
 
 
 def query():
@@ -262,8 +334,10 @@ def query():
                 done = True
                 sys.exit()
                 
-            for box in input_boxes:
-                box.handle_event(evnt)
+            selectText = input_boxes[0].handle_event(evnt)
+            fromText = input_boxes[1].handle_event(evnt)
+            whereText = input_boxes[2].handle_event(evnt)
+            orderbyText = input_boxes[3].handle_event(evnt)
 
         for box in input_boxes:
             box.update()
