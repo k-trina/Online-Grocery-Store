@@ -3,6 +3,26 @@ import os
 import random
 import sys # Added this library to correct program exit -- Coco
 
+# Import stuff for connection handling
+from Connect import Connect
+from Tunnel import Tunnel
+
+# Constants - connection definition files
+DCRIS_FILE = "dcris.txt"
+HOPPER_FILE = "hopper.txt"
+
+# Connect to the DCRIS database with an option file
+conn = Connect(DCRIS_FILE)
+# Get the connection cursor object
+cursor = conn.cursor
+
+
+# Define a SQL query
+sql = "SELECT * FROM employee"
+# sql = "SELECT " +  "FROM " + "WHERE " + "ORDER BY "
+# Execute the query from the connection cursor
+cursor.execute(sql)
+
 #moving screen to top left corner
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" %(0, 20)
 init()
@@ -151,25 +171,48 @@ def query():
     def query_screen():
         screen.fill(STRONGTEAL)
             
-        text_str = "SELECT :"
-        text = ModernSubHeading.render(text_str,True,BLACK)
+        select_attribute = "SELECT :"
+        text = ModernSubHeading.render(select_attribute,True,BLACK)
         screen.blit(text,(150,150))
         
-        text_str = "FROM :"
-        text = ModernSubHeading.render(text_str,True,BLACK)
+        table = "FROM :"
+        text = ModernSubHeading.render(table,True,BLACK)
         screen.blit(text,(150,250))
         
-        text_str = "WHERE :"
-        text = ModernSubHeading.render(text_str,True,BLACK)
+        value = "WHERE :"
+        text = ModernSubHeading.render(value,True,BLACK)
         screen.blit(text,(150,350))
         
-        text_str = "ORDER BY :"
-        text = ModernSubHeading.render(text_str,True,BLACK)
+        order_attribute = "ORDER BY :"
+        text = ModernSubHeading.render(order_attribute,True,BLACK)
         screen.blit(text,(150,450))
         
-        text_str = "For ORDER BY, enter either ASC or DES"
-        text = ModernWriting.render(text_str,True,BLACK)
+        order = "For ORDER BY, enter either ASC or DES"
+        text = ModernWriting.render(order,True,BLACK)
         screen.blit(text,(150,550))
+
+        # Concatenate input and define SQL query
+        sql = "SELECT " + select_attribute + " FROM " + table + " WHERE " + select_attribute + " = " + value + " ORDER BY " + order_attribute + order + ";"
+
+        # Execute the query from the connection cursor
+        cursor.execute(sql)
+        
+        # Print the column names from the query result
+        print("Columns:")
+        print(cursor.column_names)
+        print()
+        
+        # Get and print the contents of the query results (raw results)
+        rows = cursor.fetchall()
+        print(f"Row count: {cursor.rowcount}")
+        print()
+
+        print("Data:")
+        for row in rows:
+            print(row)
+        
+        # Close the Connect object
+        conn.close()
         
         return
     
