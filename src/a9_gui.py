@@ -1,3 +1,4 @@
+
 from pygame import * 
 import os
 import random
@@ -15,13 +16,6 @@ HOPPER_FILE = "hopper.txt"
 conn = Connect(DCRIS_FILE)
 # Get the connection cursor object
 cursor = conn.cursor
-
-
-# Define a SQL query
-sql = "SELECT * FROM employee"
-# sql = "SELECT " +  "FROM " + "WHERE " + "ORDER BY "
-# Execute the query from the connection cursor
-cursor.execute(sql)
 
 #moving screen to top left corner
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" %(0, 20)
@@ -53,7 +47,6 @@ ModernWriting = font.SysFont("Modern No. 20",26)
 DROP = "DROP"
 CREATE = "CREATE"
 FILL = "FILL"
-
 
 # booleans
 quitting = False
@@ -156,7 +149,6 @@ def clickableButton(backColour,textColour,text,width, x, y):
     return buttonRect
 """
 
-
 # main screen - menu page
 def mainMenu (): # Returns a list of menu rectangles
     screen.fill(WHITE)
@@ -166,6 +158,7 @@ def mainMenu (): # Returns a list of menu rectangles
     queryRect = menuButton(DEEPBLUE, STRONGTEAL, "QUERY", 525)
     return [dropRect, createRect, addRect, queryRect]
     
+# SQL FUNCTIONS
 # SQL FUNCTIONS
 def drop():
     def drop_screen():
@@ -255,11 +248,34 @@ def create():
         display.flip()
         clock.tick(30)
     
+    create_backend(text1, text2)
+
+def create_backend(text1, text2): 
+    #tableName= input("Enter the table name: ")
+    #attributes= input("Enter all the attribute names you would like to enter ( Ex: int name,varchar(20) name2: ") 
+    text2= text2.split(",")
+    sql= "CREATE TABLE " + text1 + " (\n"
+    for i in range(len(text2)): 
+        if i != (len(text2)-1):
+            sql= sql+text2[i][:-1]+",\n"
+        else: 
+            sql= sql+text2[i][:-1]+"\n"
+            
+    sql=sql+");"
+
+    cursor.execute(sql)
+    
+    return
+    
 def add():
     def add_screen():
         screen.fill((102, 200,178))
-        
-        tables = ["employee", "customer", "order"] # Hardcoded sample data
+        cursor.execute("Show tables;")
+        tables = cursor.fetchall()
+        for i, n in enumerate(tables):
+            n= ''.join(n) 
+            tables[i]= n
+        #tables = ["employee", "customer", "order"] # Hardcoded sample data
         
         #tables_str = "Your database has the following tables:"
         text = ModernWriting.render("Your database has the following tables :",True,BLACK)
@@ -307,56 +323,32 @@ def add():
 
         display.flip()
         clock.tick(30)
- 
-    
-
+  
 
 def query():
     def query_screen():
         screen.fill(STRONGTEAL)
-         # DISPLAY TEXT TO SCREEN (not input boxes)
+        
+        # DISPLAY TEXT TO SCREEN (not input boxes)
         text_str = "SELECT :"
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,150))
         
-        table = "FROM :"
-        text = ModernSubHeading.render(table,True,BLACK)
+        text_str = "FROM :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,250))
         
-        value = "WHERE :"
-        text = ModernSubHeading.render(value,True,BLACK)
+        text_str = "WHERE :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,350))
         
-        order_attribute = "ORDER BY :"
-        text = ModernSubHeading.render(order_attribute,True,BLACK)
+        text_str = "ORDER BY :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,450))
         
-        order = "For ORDER BY, enter either ASC or DES"
-        text = ModernWriting.render(order,True,BLACK)
+        text_str = "For ORDER BY, enter either ASC or DES"
+        text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
-
-        # Concatenate input and define SQL query
-        sql = "SELECT " + select_attribute + " FROM " + table + " WHERE " + select_attribute + " = " + value + " ORDER BY " + order_attribute + order + ";"
-
-        # Execute the query from the connection cursor
-        cursor.execute(sql)
-        
-        # Print the column names from the query result
-        print("Columns:")
-        print(cursor.column_names)
-        print()
-        
-        # Get and print the contents of the query results (raw results)
-        rows = cursor.fetchall()
-        print(f"Row count: {cursor.rowcount}")
-        print()
-
-        print("Data:")
-        for row in rows:
-            print(row)
-        
-        # Close the Connect object
-        conn.close()
         
         return
     
@@ -365,8 +357,6 @@ def query():
     input_box3 = InputBox(450, 350, 500, 50)
     input_box4 = InputBox(450, 450, 500, 50, "ASC")
 
-    
-    
     input_boxes = [input_box1, input_box2, input_box3, input_box4]
     done = False
     clock = time.Clock()
@@ -392,27 +382,34 @@ def query():
         display.flip()
         clock.tick(30)
     
+    #Write a done button
+
+    query_backend(selectText, fromText, whereText, orderbyText)
+
+def query_backend(selectText, fromText, whereText, orderbyText):
+    sql = "SELECT " + selectText + " FROM " + fromText + " WHERE " + whereText + " ORDER BY " + orderbyText + ";"
     
-    """
-    done = False
-    while done == False:
-        clock = time.Clock()
-        for evnt in event.get():
-            if evnt.type == QUIT:
-                done = True
-            for box in input_boxes:
-                box.handle_event(evnt)
+    # Execute the query from the connection cursor
+    cursor.execute(sql)
 
-        for box in input_boxes:
-            box.update()
+    # Print the column names from the query result
+    print("Columns:")
+    print(mycursor.column_names)
+    print()
+    
+    # Get and print the contents of the query results (raw results)
+    rows = mycursor.fetchall()
+    print(f"Row count: {mycursor.rowcount}")
+    print()
 
-        for box in input_boxes:
-            box.draw(screen)
-
-        display.flip()
-        clock.tick(30)
-        """
-
+    print("Data:")
+    for row in rows:
+        print(row)
+    
+    # Close the Connect object
+    conn.close()
+    
+    return
 
 def click(button,mousex,mousey,width,height):
     if button == 1: # if button is being pressed
@@ -467,6 +464,3 @@ while quitting == False: # Main program
 
     display.update() # this line was missing, the display would never change regardless of the user's interactions without it
             
-            
-
-    
