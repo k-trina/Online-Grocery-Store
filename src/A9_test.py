@@ -455,8 +455,31 @@ def query_backend(selectText, fromText, whereText, orderbyText):
     # Execute the query from the connection cursor
     cursor.execute(sql)
 
+    query_results(cursor,sql)
+    
+    # Close the Connect object
+    # conn.close()
+    
+    return
+
+def text_print (text_str,width,height):
+    text = ModernWriting.render(text_str,True,BLACK)
+    screen.blit(text,(width,height))
+    return
+
+# outputs query results onto the GUI
+def query_results (cursor,sql):
+    screen.fill(WHITE)
+    display.flip()
+
+    text_print("Columns:",150,100)
+
+    # Create a surface object for the column names text
+    # text_surface = ModernWriting.render(str(cursor.column_names), True, BLACK)
+    text_print (str(cursor.column_names),150,150)
+
     # Print the column names from the query result
-    print("Columns:")
+    
     print(cursor.column_names)
     print()
     
@@ -468,10 +491,6 @@ def query_backend(selectText, fromText, whereText, orderbyText):
     print("Data:")
     for row in rows:
         print(row)
-    
-    # Close the Connect object
-    # conn.close()
-    
     return
 
 def click(button,mousex,mousey,width,height):
