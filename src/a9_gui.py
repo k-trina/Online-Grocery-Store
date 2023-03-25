@@ -50,6 +50,22 @@ def backButton():
     screen.blit(text,(50,600))
     return backRect
 
+def inputBoxPrompt():
+    text_str = "Press ENTER after you finish typing values into each textbox to save the values."
+    text = ModernWriting.render(text_str,True,BLACK)
+    screen.blit(text,(50,50))
+
+    text_str = "Then click DONE ."
+    text = ModernWriting.render(text_str,True,BLACK)
+    screen.blit(text,(50,90))
+
+def doneButton(x,y):
+    draw.rect(screen,PASTELYELLOW,(450,400,200,100))
+    doneRect = Rect(450,400,200,100)
+    text = ModernSubHeading.render("DONE",True,BLACK)
+    screen.blit(text,(475,425))
+    return doneRect
+
 
 # input text box class
 class InputBox:
@@ -112,39 +128,6 @@ def menuButton(backColour,textColour,text,width):
     
     return buttonRect
 
-"""
-def clickableButton(backColour,textColour,text,width, x, y):
-    def center_text(text,button_rect):
-        text_rect=text.get_rect()
-        text_x=(button_rect[0]+button_rect[2])//2
-        text_y=button_rect[1]+10
-        centered_text=(text_x,text_y,button_rect[2],button_rect[3])
-        return centered_text
-    def display_buttontext(text,textfont,rect,centertext):
-        Button_text=textfont.render(text,True,(255,255,255))
-        if centertext==True:
-            text_rect=ClickableButton.center_text(Button_text,rect)
-        else:
-            text_rect=rect
-            text_rect[1]+=10
-        screen.blit(Button_text,text_rect)
-    
-    
-    draw.rect (screen, backColour, (250,width,450,75))
-    buttonRect = Rect(250,width,450,75)
-        
-    text1 = ModernWriting.render(text, 1, textColour) 
-        # getting the width of the text
-    text1Width = ModernWriting.size(text)[0] 
-        # getting the height of the text
-    text1Height = ModernWriting.size(text)[1]
-    centered_text = center_text(text1, buttonRect)
-    
-    screen.blit(text1, Rect(x, y, text1Width, text1Height))
-    
-    return buttonRect
-"""
-
 
 # main screen - menu page
 def mainMenu (): # Returns a list of menu rectangles
@@ -165,7 +148,8 @@ def drop():
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(100,150))
         backRect = backButton()
-        
+        inputBoxPrompt()
+        doneButton()
         return
         
     #drop_screen()
@@ -221,11 +205,12 @@ def create():
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,250))
         
-        text_str = "For Attributes, the format should be as follows: (type varName, type varName2)"
+        text_str = "For Attributes, the format should be as follows : (type varName, type varName2)"
         text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
         
         backRect = backButton()
+        inputBoxPrompt()
         return
 
         
@@ -291,6 +276,7 @@ def add():
         text = ModernWriting.render("Please enter the name of the table which you want to add data to:",True,BLACK)
         screen.blit(text,(100,250))
         backRect = backButton()
+        inputBoxPrompt()
         return
 
     input_box1 = InputBox(100, 300, 500, 50)
@@ -357,6 +343,7 @@ def query():
         text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
         backRect = backButton()
+        inputBoxPrompt()
         return
     
     input_box1 = InputBox(450, 150, 500, 50)
@@ -398,17 +385,6 @@ def query():
 
         display.flip()
         clock.tick(30)
-
-
-def click(button,mousex,mousey,width,height):
-    if button == 1: # if button is being pressed
-        if height <= mousex <= height + 450: # if mouse in range of button
-            if width <= mousey <= width + 125:
-                # create table
-                drop()
-                print("hello")
-    return
-
 
 menuRects = mainMenu()
 
