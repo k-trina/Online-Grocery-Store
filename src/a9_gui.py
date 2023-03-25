@@ -149,7 +149,7 @@ def drop():
         screen.blit(text,(100,150))
         backRect = backButton()
         inputBoxPrompt()
-        doneButton()
+        # doneButton()
         return
         
     #drop_screen()
@@ -255,7 +255,7 @@ def add():
     def add_screen():
         screen.fill((102, 200,178))
         
-        tables = ["employee", "customer", "order"] # Hardcoded sample data
+        #tables = ["employee", "customer", "order"] # Hardcoded sample data
         
         #tables_str = "Your database has the following tables:"
         text = ModernWriting.render("Your database has the following tables :",True,BLACK)
@@ -279,6 +279,36 @@ def add():
         inputBoxPrompt()
         return
 
+    def add_screen2(attributes): # call this function when the DONE button is clicked
+        screen.fill((102, 200,178))
+
+        text = ModernWriting.render("Your table has the following attributes :",True,BLACK)
+        screen.blit(text,(100,150))
+        
+        attributes_str = ""
+        
+        for attribute in attributes:
+            attributes_str += attribute
+            if attribute != attributes[-1]:
+                attributes_str += ", "
+        
+        text = ModernWriting.render(attributes_str,True,(150,40,40))
+        screen.blit(text,(100,200))
+                
+        #print(tables_str)
+        
+        text = ModernWriting.render("Please enter the desired record in the order of the above attributes:",True,BLACK)
+        screen.blit(text,(100,250))
+        backRect = backButton()
+        inputBoxPrompt()
+
+        text_str = "Example of correct format: attribute1,attribute2,attribute3"
+        text = ModernWriting.render(text_str,True,BLACK)
+        screen.blit(text,(150,550))
+
+        return
+
+    
     input_box1 = InputBox(100, 300, 500, 50)
     
     input_boxes = [input_box1]
@@ -306,8 +336,9 @@ def add():
         for box in input_boxes:
             box.update()
 
-        add_screen() # used to enable backspaces on input text boxes
-        
+        #add_screen() # used to enable backspaces on input text boxes
+        add_screen2(["productID","productName","price"]) # hardcoded values, remove and replace with backend retrieved attributes
+
         for box in input_boxes:
             box.draw(screen)
 
@@ -315,7 +346,6 @@ def add():
         clock.tick(30)
         
     # Once done button is clicked, page 2 of add
-    
 
 
 def query():
