@@ -224,7 +224,7 @@ def create():
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,250))
         
-        text_str = "For Attributes, the format should be as follows: (type varName, type varName2)"
+        text_str = "For Attributes, the format should be as follows: (varName <type>,varName2 <type>)"
         text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
         
@@ -312,7 +312,7 @@ def create_backend(text1, text2):
     
     return
     
-def add():
+# def add():
     def add_screen():
         screen.fill((102, 200,178))
         cursor.execute("Show tables;")
@@ -368,7 +368,77 @@ def add():
 
         display.flip()
         clock.tick(30)
-  
+def add():
+    def add_screen():
+        screen.fill((102, 200,178))
+        cursor.execute("Show tables;")
+        tables = cursor.fetchall()
+        for i, n in enumerate(tables):
+            n= ''.join(n) 
+            tables[i]= n
+        #tables = ["employee", "customer", "order"] # Hardcoded sample data
+
+        #tables_str = "Your database has the following tables:"
+        text = ModernWriting.render("Your database has the following tables :",True,BLACK)
+        screen.blit(text,(100,350))
+        
+
+        tables_str = ""
+
+        for table in tables:
+            tables_str += table
+            if table != tables[-1]:
+                tables_str += "\n"
+
+        tables_list = tables_str.splitlines(False)
+        table_lines = []
+        tables_str = ""
+        count = 0
+        for table in tables_list:
+            count += 1
+            tables_str += table + ", "
+            if count % 5 == 0:
+                table_lines.append(tables_str)
+                tables_str = ""
+
+        placement = 400
+        
+        for table in table_lines:
+            text = ModernWriting.render(table,True,(150,40,40))
+            screen.blit(text,(100, placement))
+            placement += 50
+
+        text = ModernWriting.render("Please enter the name of the table which you want to add data to:",True,BLACK)
+        screen.blit(text,(100,200))
+
+    COLOR_ACTIVE = WHITE # background is too light, so temporarily changing the active input box colour
+
+    input_box1 = InputBox(100, 250, 500, 50)
+
+    input_boxes = [input_box1]
+
+
+    done = False
+    clock = time.Clock()
+    while done == False:
+        for evnt in event.get():
+            if evnt.type == QUIT:
+                done = True
+                sys.exit()
+
+            #for box in input_boxes:
+            text = input_box1.handle_event(evnt)
+
+        for box in input_boxes:
+            box.update()
+
+        add_screen() # used to enable backspaces on input text boxes
+
+        for box in input_boxes:
+            box.draw(screen)
+
+        display.flip()
+        clock.tick(30)
 
 def query():
     def query_screen():
@@ -450,17 +520,19 @@ def query():
     query_backend(text1, text2, text3, text4)
 
 def query_backend(selectText, fromText, whereText, orderbyText):
-    sql = "SELECT " + selectText + " FROM " + fromText + " WHERE " + whereText + " ORDER BY " + fromText + "."+ selectText + " " + orderbyText + ";"
+    attributes= selectText.split(",")
+    sql = "SELECT " + selectText + " FROM " + fromText + " WHERE " + whereText + " ORDER BY " + fromText + "."+ attributes[0] + " " + orderbyText + ";"
     print ("The SQL Query is ", sql)
     # Execute the query from the connection cursor
     cursor.execute(sql)
 
-    query_results(cursor,sql)
-    
+    query_results(cursor)
+
     # Close the Connect object
     # conn.close()
-    
+
     return
+
 
 def text_print (text_str,width,height):
     text = ModernWriting.render(text_str,True,BLACK)
@@ -468,29 +540,69 @@ def text_print (text_str,width,height):
     return
 
 # outputs query results onto the GUI
-def query_results (cursor,sql):
-    screen.fill(WHITE)
+def query_results (cursor):
+    screen.fill(STRONGTEAL)
     display.flip()
 
-    text_print("Columns:",150,100)
+    # Create a surface object for each line of text
+    text_surfaces = []
+    text_surfaces.append(ModernWriting.render("Column names:", True, BLACK))
+    for column_name in cursor.column_names:
+        text_surfaces.append(ModernWriting.render(column_name, True, BLACK))
+    # text_surfaces.append(ModernWriting.render("", True, BLACK))
+    # text_surfaces.append(ModernWriting.render(f"Row count: {cursor.rowcount}", True, BLACK))
+    text_surfaces.append(ModernWriting.render("", True, BLACK))
 
-    # Create a surface object for the column names text
-    # text_surface = ModernWriting.render(str(cursor.column_names), True, BLACK)
-    text_print (str(cursor.column_names),150,150)
-
-    # Print the column names from the query result
-    
-    print(cursor.column_names)
-    print()
-    
+    # Blit the text surfaces onto the screen vertically
+    x = 10
+    y = 10
+    for text_surface in text_surfaces:
+        screen.blit(text_surface, (x, y))
+        y += text_surface.get_height() + 5
     # Get and print the contents of the query results (raw results)
     rows = cursor.fetchall()
-    print(f"Row count: {cursor.rowcount}")
-    print()
+    text_print("Row count: "+ str(cursor.rowcount), 250,10)
 
-    print("Data:")
+    y_placement= 250
+    x_placement= 50
+    final = ""
+
+    text_print("Data:", 250, 50)
     for row in rows:
-        print(row)
+        x_placement += 25
+        temp= str(row).split(",")
+        print ("Length of temp",len(temp))
+        final = ""
+        for i, n in enumerate(temp):
+            print ("I is: ", i)
+            if i == (len(temp)-1):
+                    final= final+n[2:-2]
+            else:
+                final = final + n[1:]+", "
+
+        text_print(final, y_placement, x_placement)
+        # text_print(str(row)[1:-2], (y_placement), (x_placement))
+
+    # for row in cursor.rows:
+    #     text_surfaces.append(font.render(str(row), True, BLACK))
+
+    # # Create a surface object for the column names text
+    # # text_surface = ModernWriting.render(str(cursor.column_names), True, BLACK)
+    # text_print (str(cursor.column_names),150,150)
+
+    # # Print the column names from the query result
+    
+    # print(cursor.column_names)
+    # print()
+    
+    # # Get and print the contents of the query results (raw results)
+    # rows = cursor.fetchall()
+    # print(f"Row count: {cursor.rowcount}")
+    # print()
+
+    # print("Data:")
+    # for row in rows:
+    #     print(row)
     return
 
 def click(button,mousex,mousey,width,height):
