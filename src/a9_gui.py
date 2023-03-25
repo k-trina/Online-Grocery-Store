@@ -3,26 +3,6 @@ import os
 import random
 import sys # Added this library to correct program exit -- Coco
 
-# Import stuff for connection handling
-from Connect import Connect
-from Tunnel import Tunnel
-
-# Constants - connection definition files
-DCRIS_FILE = "dcris.txt"
-HOPPER_FILE = "hopper.txt"
-
-# Connect to the DCRIS database with an option file
-conn = Connect(DCRIS_FILE)
-# Get the connection cursor object
-cursor = conn.cursor
-
-
-# Define a SQL query
-sql = "SELECT * FROM employee"
-# sql = "SELECT " +  "FROM " + "WHERE " + "ORDER BY "
-# Execute the query from the connection cursor
-cursor.execute(sql)
-
 #moving screen to top left corner
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" %(0, 20)
 init()
@@ -61,6 +41,15 @@ quitting = False
 mx = my = 0
 posx = posy = 0
 button = 0
+
+# back button
+def backButton():
+    draw.rect(screen,(100,150,255),(50,600,150,60))
+    backRect = Rect(50,600,150,60)
+    text = ModernSubHeading.render("BACK",True,BLACK)
+    screen.blit(text,(50,600))
+    return backRect
+
 
 # input text box class
 class InputBox:
@@ -164,6 +153,7 @@ def mainMenu (): # Returns a list of menu rectangles
     createRect = menuButton(DEEPBLUE, PASTELRED,"CREATE", 275)
     addRect = menuButton(DEEPBLUE, PASTELGREEN, "ADD", 400)
     queryRect = menuButton(DEEPBLUE, STRONGTEAL, "QUERY", 525)
+    on_menu = True
     return [dropRect, createRect, addRect, queryRect]
     
 # SQL FUNCTIONS
@@ -174,24 +164,36 @@ def drop():
         text_str = "Table to be dropped :"
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(100,150))
+        backRect = backButton()
         
-        # Put "done" button here
-    
+        return
+        
+    #drop_screen()
     input_box1 = InputBox(550, 150, 500, 50)
     
     input_boxes = [input_box1]
-
+    
+    backRect = backButton()
         
     done = False
     clock = time.Clock()
     while done == False:
+        mouse_pos = mouse.get_pos()
         for evnt in event.get():
             if evnt.type == QUIT:
                 done = True
                 sys.exit()
+            if evnt.type == MOUSEBUTTONDOWN:
+                if backRect.collidepoint(mouse_pos): # drop button being pressed
+                    print("Back")
+                    on_menu = True
+                    done = True
+                    display.flip()
+                    return
                 
             #for box in input_boxes:
             text = input_box1.handle_event(evnt)
+            
 
         for box in input_boxes:
             box.update()
@@ -223,22 +225,31 @@ def create():
         text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
         
-        # doneRect = clickableButton(PASTELGREEN, BLACK,"DONE", 150, 800, 500)
+        backRect = backButton()
+        return
 
         
     input_box1 = InputBox(450, 150, 500, 50)
     input_box2 = InputBox(450, 250, 500, 50)
 
     input_boxes = [input_box1, input_box2]
-
+    backRect = backButton()
         
     done = False
     clock = time.Clock()
     while done == False:
+        mouse_pos = mouse.get_pos()
         for evnt in event.get():
             if evnt.type == QUIT:
                 done = True
                 sys.exit()
+            if evnt.type == MOUSEBUTTONDOWN:
+                if backRect.collidepoint(mouse_pos): # drop button being pressed
+                    print("Back")
+                    on_menu = True
+                    done = True
+                    display.flip()
+                    return
                 
             #for box in input_boxes:
             text1 = input_box1.handle_event(evnt)
@@ -279,20 +290,29 @@ def add():
         
         text = ModernWriting.render("Please enter the name of the table which you want to add data to:",True,BLACK)
         screen.blit(text,(100,250))
-        
-    COLOR_ACTIVE = WHITE # background is too light, so temporarily changing the active input box colour
+        backRect = backButton()
+        return
 
     input_box1 = InputBox(100, 300, 500, 50)
     
     input_boxes = [input_box1]
-
+    backRect = backButton()
+    
     done = False
     clock = time.Clock()
     while done == False:
+        mouse_pos = mouse.get_pos()
         for evnt in event.get():
             if evnt.type == QUIT:
                 done = True
                 sys.exit()
+            if evnt.type == MOUSEBUTTONDOWN:
+                if backRect.collidepoint(mouse_pos): # drop button being pressed
+                    print("Back")
+                    on_menu = True
+                    done = True
+                    display.flip()
+                    return
                 
             #for box in input_boxes:
             text = input_box1.handle_event(evnt)
@@ -307,74 +327,61 @@ def add():
 
         display.flip()
         clock.tick(30)
- 
+        
+    # Once done button is clicked, page 2 of add
     
 
 
 def query():
     def query_screen():
         screen.fill(STRONGTEAL)
-         # DISPLAY TEXT TO SCREEN (not input boxes)
+        
+        # DISPLAY TEXT TO SCREEN (not input boxes)
         text_str = "SELECT :"
         text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,150))
         
-        table = "FROM :"
-        text = ModernSubHeading.render(table,True,BLACK)
+        text_str = "FROM :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,250))
         
-        value = "WHERE :"
-        text = ModernSubHeading.render(value,True,BLACK)
+        text_str = "WHERE :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,350))
         
-        order_attribute = "ORDER BY :"
-        text = ModernSubHeading.render(order_attribute,True,BLACK)
+        text_str = "ORDER BY :"
+        text = ModernSubHeading.render(text_str,True,BLACK)
         screen.blit(text,(150,450))
         
-        order = "For ORDER BY, enter either ASC or DES"
-        text = ModernWriting.render(order,True,BLACK)
+        text_str = "For ORDER BY, enter either ASC or DES"
+        text = ModernWriting.render(text_str,True,BLACK)
         screen.blit(text,(150,550))
-
-        # Concatenate input and define SQL query
-        sql = "SELECT " + select_attribute + " FROM " + table + " WHERE " + select_attribute + " = " + value + " ORDER BY " + order_attribute + order + ";"
-
-        # Execute the query from the connection cursor
-        cursor.execute(sql)
-        
-        # Print the column names from the query result
-        print("Columns:")
-        print(cursor.column_names)
-        print()
-        
-        # Get and print the contents of the query results (raw results)
-        rows = cursor.fetchall()
-        print(f"Row count: {cursor.rowcount}")
-        print()
-
-        print("Data:")
-        for row in rows:
-            print(row)
-        
-        # Close the Connect object
-        conn.close()
-        
+        backRect = backButton()
         return
     
     input_box1 = InputBox(450, 150, 500, 50)
     input_box2 = InputBox(450, 250, 500, 50)
     input_box3 = InputBox(450, 350, 500, 50)
     input_box4 = InputBox(450, 450, 500, 50, "ASC")
-
-    
     
     input_boxes = [input_box1, input_box2, input_box3, input_box4]
+    
+    backRect = backButton()
     done = False
     clock = time.Clock()
     while done == False:
+        mouse_pos = mouse.get_pos()
         for evnt in event.get():
             if evnt.type == QUIT:
                 done = True
                 sys.exit()
+            if evnt.type == MOUSEBUTTONDOWN:
+                if backRect.collidepoint(mouse_pos): # drop button being pressed
+                    print("Back")
+                    on_menu = True
+                    done = True
+                    display.flip()
+                    return
                 
             selectText = input_boxes[0].handle_event(evnt)
             fromText = input_boxes[1].handle_event(evnt)
@@ -391,27 +398,6 @@ def query():
 
         display.flip()
         clock.tick(30)
-    
-    
-    """
-    done = False
-    while done == False:
-        clock = time.Clock()
-        for evnt in event.get():
-            if evnt.type == QUIT:
-                done = True
-            for box in input_boxes:
-                box.handle_event(evnt)
-
-        for box in input_boxes:
-            box.update()
-
-        for box in input_boxes:
-            box.draw(screen)
-
-        display.flip()
-        clock.tick(30)
-        """
 
 
 def click(button,mousex,mousey,width,height):
@@ -436,37 +422,36 @@ while quitting == False: # Main program
             quitting = True
             sys.exit() # Added this line since quitting program caused crash -- Coco
         if on_menu == True:
-            if evnt.type == MOUSEBUTTONDOWN: # Note: If the user holds down the mouse button and puts cursor on the button, it is activated
+            if evnt.type == MOUSEBUTTONDOWN:
                 if menuRects[0].collidepoint(mouse_pos): # drop button being pressed
                     print("Drop")
-                    drop()
                     on_menu = False
+                    drop()
+                    menuRects = mainMenu()
+                    on_menu = True
+                    continue
                 elif menuRects[1].collidepoint(mouse_pos): # create button being pressed
                     print("Create")
-                    create()
                     on_menu = False
+                    create()
+                    menuRects = mainMenu()
+                    on_menu = True
+                    continue
                 elif menuRects[2].collidepoint(mouse_pos): # create button being pressed
                     print("Add")
-                    add()
                     on_menu = False
+                    add()
+                    menuRects = mainMenu()
+                    on_menu = True
+                    continue
                 elif menuRects[3].collidepoint(mouse_pos): # create button being pressed
                     print("Query")
-                    query()
                     on_menu = False
-                    
-    
-                
-            
-#         if evnt.type == MOUSEBUTTONDOWN:
-#             mx,my = evnt.pos
-#             button = evnt.button
-#             click(button,mx,my,150,250)
-
-#         if action == "CREATE":
-#             screen.fill(PASTELPURPLE)
+                    query()
+                    menuRects = mainMenu()
+                    on_menu = True
+                    continue
 
     display.update() # this line was missing, the display would never change regardless of the user's interactions without it
             
             
-
-    
